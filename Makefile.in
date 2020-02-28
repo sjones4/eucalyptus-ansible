@@ -1,0 +1,47 @@
+distdir = @PACKAGE_TARNAME@-@PACKAGE_VERSION@
+prefix = @prefix@
+datarootdir = @datarootdir@
+datadir = @datadir@
+playbookcommit = @PLAYBOOK_COMMIT@
+
+.PHONY: all clean dist distclean distdir fetch install
+
+all:
+
+fetch:
+	mkdir build
+	curl --silent --location --output build/$(playbookcommit).zip https://github.com/appscale/ats-deploy/archive/$(playbookcommit).zip
+
+build: fetch
+	mkdir build/eucalyptus-ansible
+	unzip -qq build/$(playbookcommit).zip -d build/
+	cp  -p build/ats-deploy-$(playbookcommit)/*.yml build/eucalyptus-ansible/
+	cp -rp build/ats-deploy-$(playbookcommit)/vars  build/eucalyptus-ansible/vars
+	cp -rp build/ats-deploy-$(playbookcommit)/roles build/eucalyptus-ansible/roles
+
+install: fetch build
+	install -d -m 0755 $(DESTDIR)$(datarootdir)/eucalyptus-ansible/
+	cp -rp build/eucalyptus-ansible/* $(DESTDIR)$(datarootdir)/eucalyptus-ansible/
+
+distdir: fetch build
+	rm -rf $(distdir)
+	mkdir -p $(distdir)
+	cp -rp build/eucalyptus-ansible/* $(distdir)/
+
+dist: distdir
+	mkdir -p dist
+	tar -cJ -f dist/$(distdir).tar.xz $(distdir)
+	rm -rf $(distdir)
+
+clean:
+	rm -rf build
+	rm -rf dist
+	rm -rf $(distdir)
+
+distclean: clean
+	rm -f  Makefile
+	rm -rf autom4te.cache
+	rm -f  config.log
+	rm -f  config.status
+	rm -f  configure
+
