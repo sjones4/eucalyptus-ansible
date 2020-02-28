@@ -1,2 +1,2 @@
 # eucalyptus-ansible
-Ansible playbooks for Eucalyptus
+RPM packaging of Ansible playbooks for Eucalyptus cloud deployments.
