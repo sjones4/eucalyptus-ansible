@@ -3,6 +3,7 @@ prefix = @prefix@
 datarootdir = @datarootdir@
 datadir = @datadir@
 playbookcommit = @PLAYBOOK_COMMIT@
+playbookorg = @PLAYBOOK_ORG@
 
 .PHONY: all clean dist distclean distdir fetch install
 
@@ -10,7 +11,7 @@ all:
 
 fetch:
 	mkdir build
-	curl --silent --location --output build/$(playbookcommit).zip https://github.com/appscale/ats-deploy/archive/$(playbookcommit).zip
+	curl --silent --location --output build/$(playbookcommit).zip https://github.com/$(playbookorg)/ats-deploy/archive/$(playbookcommit).zip
 
 build: fetch
 	mkdir build/eucalyptus-ansible
