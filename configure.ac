@@ -9,13 +9,19 @@ m4_define([fullversion], [base_version-git_commit_count-date[git]git_revision])
 AC_INIT([eucalyptus-ansible], [fullversion])
 
 PLAYBOOK_COMMIT=11cec35eb6534b4e94e50ae8b4bb68ca1f2e5af1
+PLAYBOOK_ORG=appscale
 
 AC_ARG_WITH(playbook-commit,
     [  --with-playbook-commit=<commit>       the ats-deploy commit],
     [PLAYBOOK_COMMIT="${withval}"])
 
+AC_ARG_WITH(playbook-org,
+    [  --with-playbook-org=<commit>       the ats-deploy organization],
+    [PLAYBOOK_ORG="${withval}"])
+
 AC_CONFIG_FILES([
     Makefile
 ])
 AC_SUBST(PLAYBOOK_COMMIT)
+AC_SUBST(PLAYBOOK_ORG)
 AC_OUTPUT
