@@ -20,6 +20,7 @@ efs_inventory="${efs_inventory:-/root/faststart_inventory.yml}"
 efs_inventory_only="${efs_inventory_only:-no}"
 efs_certbot_configure="${efs_certbot_configure:-no}"
 efs_firewalld_configure="${efs_firewalld_configure:-yes}"
+efs_skip_tags="${efs_skip_tags:-none}" # "none" does not match any tags
 
 function usage()
 {
@@ -345,6 +346,30 @@ fi
 echo "[Precheck] OK, processor supports virtualization"
 echo ""
 
+echo "[Precheck] Checking if selinux enabled"
+test -x /usr/sbin/selinuxenabled && /usr/sbin/selinuxenabled
+if [ "$?" != "0" ]; then
+    echo "====="
+    echo "NOTICE: selinux is not enabled."
+    echo ""
+    echo "Do you want to continue without selinux support?"
+    echo ""
+    echo "Proceed? [y/N]"
+    readyesno continue_without_selinux
+    echo $continue_without_selinux | grep -qs '^[Yy]'
+    if [ $? = 0 ]; then
+        echo "Skipping selinux support for install."
+        efs_skip_tags="${efs_skip_tags},selinux"
+    else
+        echo "Stopped by user request."
+        exit 1
+    fi
+    echo ""
+else
+    echo "[Precheck] OK, selinux is enabled"
+    echo ""
+fi
+
 echo "[Precheck] Precheck successful."
 echo ""
 echo ""
@@ -490,7 +515,8 @@ echo "[Yum Update] Full update of the OS completed."
 # On successful exit, write "success" to faststart-successful*.log.
 
 curdir=`pwd`
-(ansible-playbook -i ${efs_inventory} \
+(ansible-playbook --inventory ${efs_inventory} \
+  --skip-tags ${efs_skip_tags} \
   /usr/share/eucalyptus-ansible/playbook_vpcmido.yml && \
   echo "Phase 1 success" > faststart-successful-phase1.log) 1>&4 2>&4 &
 
