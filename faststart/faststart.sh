@@ -414,6 +414,9 @@ done
 #
 ###############################################################################
 
+echo "[Ansible] Installing EPEL release package"
+yum install -q -y epel-release 1>&4
+
 echo "[Ansible] Installing Eucalyptus release package"
 yum install -q -y ${eucalyptus_release} 1>&4
 
