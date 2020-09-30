@@ -8,8 +8,8 @@ m4_define([fullversion], [base_version-git_commit_count-date[git]git_revision])
 
 AC_INIT([eucalyptus-ansible], [fullversion])
 
-PLAYBOOK_COMMIT=d90c492a391da10e68d19fba6445ac15e0803cd8
-PLAYBOOK_ORG=appscale
+PLAYBOOK_COMMIT=3b779c8beed932af64c954fc95b340c569633c59
+PLAYBOOK_ORG=sjones4
 
 AC_ARG_WITH(playbook-commit,
     [  --with-playbook-commit=<commit>       the ats-deploy commit],
