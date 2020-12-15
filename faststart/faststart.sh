@@ -1,13 +1,13 @@
 #!/bin/bash
 
-function faststart_init()
+faststart_init()
 {
 
 OPTIND=1
-LOGFILE='/var/log/euca-install-'`date +%m.%d.%Y-%H.%M.%S`'.log'
+LOGFILE="/var/log/euca-install-$(date +%m.%d.%Y-%H.%M.%S).log"
 
 # Initialize our own variables:
-eucalyptus_release="https://downloads.eucalyptus.cloud/software/eucalyptus/master/rhel/7/x86_64/eucalyptus-release-5-1.15.as.el7.noarch.rpm"
+eucalyptus_release="https://downloads.eucalyptus.cloud/software/eucalyptus/5/rhel/7/x86_64/eucalyptus-release-5-1.11.as.el7.noarch.rpm"
 assume_yes=0
 batch_mode=0
 
@@ -22,7 +22,7 @@ efs_certbot_configure="${efs_certbot_configure:-no}"
 efs_firewalld_configure="${efs_firewalld_configure:-yes}"
 efs_skip_tags="${efs_skip_tags:-none}" # "none" does not match any tags
 
-function usage()
+usage()
 {
     echo "usage: faststart.sh [-y] [-r RELEASE_RPM_URL ] | [-h]"
 }
@@ -50,7 +50,7 @@ done
 
 # Function for all of faststart, ensures nothing is run until script is
 # complete
-function faststart()
+faststart()
 {
 
 ###############################################################################
@@ -79,13 +79,13 @@ IMG_REFRESH="3"
 LINES_PER_IMG=$(( $(echo $IMGS[0] | sed 's/\\n/\n/g' | wc -l) + 1 ))
 
 # Output loop for tea cup
-function tput_loop()
+tput_loop()
 {
-    for((x=0; x < $LINES_PER_IMG; x++)); do tput $1; done;
+    for((x=0; x < LINES_PER_IMG; x++)); do tput "$1"; done;
 }
 
 # Let's have some tea!
-function tea()
+tea()
 {
     local pid=$1
     IFS='%'
@@ -96,7 +96,7 @@ function tea()
     else
         tput civis
         while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do for x in "${IMGS[@]}"; do
-            echo -ne $x
+            echo -ne "$x"
             tput_loop "cuu1"
             sleep $IMG_REFRESH
         done; done
@@ -106,7 +106,7 @@ function tea()
 }>&3  # no tea for logs
 
 # Check cidr input to ensure valid
-function valid_cidr()
+valid_cidr()
 {
     local  cidr=$1
     local  stat=1
@@ -124,7 +124,7 @@ function valid_cidr()
         # ensure valid for prefix
         addresses=$((2 ** (32-prefix)))
         ip_4=${ip[3]}
-        if [ $(((ip_4 / $addresses) * $addresses)) -ne $ip_4 ] ; then
+        if [ $(((ip_4 / addresses) * addresses)) -ne $ip_4 ] ; then
           stat=1
         fi
     fi
@@ -132,10 +132,10 @@ function valid_cidr()
 }
 
 # Timer check for runtime of the installation
-function timer()
+timer()
 {
     if [[ $# -eq 0 ]]; then
-        echo $(date '+%s')
+        date '+%s'
     else
         local  stime=$1
         etime=$(date '+%s')
@@ -151,30 +151,30 @@ function timer()
 }
 
 # Read a yes no input, assuming yes when applicable
-function readyesno()
+readyesno()
 {
     if [ $assume_yes -eq 1 ] ; then
         if [ -z "${!1:-}" ] ; then
             export $1="Y"
         fi
     else
-        read $1
+        read "$1"
     fi
 }
 
 # Read input, guessing or using environment when applicable
-function readinput()
+readinput()
 {
     if [ $batch_mode -eq 1 ] ; then
         if [ -z "${!1:-}" ] ; then
             export $1=""
         fi
     else
-        read $1
+        read "$1"
     fi
 }
 
-function inputerror() {
+inputerror() {
     echo "$1"
     if [ $batch_mode -eq 1 ] ; then
         echo "Install failed due to missing or invalid configuration"
@@ -208,7 +208,7 @@ t=$(timer)
 echo ""
 
 echo "[Precheck] Checking OS"
-cat /etc/redhat-release | egrep 'release.*7.[56789]' 1>&4 2>&4
+egrep 'release.*7.[56789]' "/etc/redhat-release" 1>&4 2>&4
 if [ "$?" != "0" ]; then
     echo "======"
     echo "[FATAL] Operating system not supported"
@@ -222,7 +222,7 @@ echo "[Precheck] OK, OS is supported"
 echo ""
 
 echo "[Precheck] Checking root"
-efs_user=`whoami`
+efs_user=$(whoami)
 if [ "$efs_user" != 'root' ]; then
     echo "======"
     echo "[FATAL] Not running as root"
@@ -234,7 +234,7 @@ echo "[Precheck] OK, running as root"
 echo ""
 
 echo "[Precheck] Checking available disk space"
-DiskSpace=`df -Pk /var | tail -1 | awk '{ print $4}'`
+DiskSpace=$(df -Pk /var | tail -1 | awk '{ print $4}')
 if [ "$DiskSpace" -lt "100000000" ]; then
     echo "[WARNING] we recommend at least 100G of disk space available"
     echo "in /var for a Eucalyptus Faststart installation.  Running with"
@@ -242,7 +242,7 @@ if [ "$DiskSpace" -lt "100000000" ]; then
     echo "management, and may dramatically reduce the number of instances"
     echo "your cloud can run simultaneously."
     echo ""
-    echo "Your free space is: `df -Ph /var | tail -1 | awk '{ print $4}'`"
+    echo "Your free space is: $(df -Ph /var | tail -1 | awk '{ print $4}')"
     echo ""
     echo "Continue? [y/N]"
     readyesno continue_disk
@@ -257,7 +257,7 @@ echo ""
 
 echo "[Precheck] Checking for installed Eucalyptus"
 rpm -q eucalyptus &>/dev/null
-if [ "$?" == "0" ]; then
+if [ "$?" = "0" ]; then
     echo "====="
     echo "[WARNING] Eucalyptus already installed!"
     echo ""
@@ -305,7 +305,7 @@ if [ "$?" != "0" ]; then
     echo "If you answer 'yes' I will change that for you."
     echo "Proceed? [y/N]"
     readyesno enable_network_service
-    echo $enable_network_service | grep -qs '^[Yy]'
+    echo "$enable_network_service" | grep -qs '^[Yy]'
     if [ $? = 0 ]; then
         echo "I am changing that for you now."
         systemctl start network.service 1>&4 2>&4
@@ -356,7 +356,7 @@ if [ "$?" != "0" ]; then
     echo ""
     echo "Proceed? [y/N]"
     readyesno continue_without_selinux
-    echo $continue_without_selinux | grep -qs '^[Yy]'
+    echo "$continue_without_selinux" | grep -qs '^[Yy]'
     if [ $? = 0 ]; then
         echo "Skipping selinux support for install."
         efs_skip_tags="${efs_skip_tags},selinux"
@@ -387,12 +387,12 @@ echo ""
 
 until test -n "${efs_ip_range}" ; do
     echo "What's the CIDR for the available public IP range?"
-    until valid_cidr $efs_ip_cidr; do
+    until valid_cidr "$efs_ip_cidr"; do
         readinput efs_ip_cidr
-        valid_cidr $efs_ip_cidr || inputerror "Please provide a valid CIDR (/24 - /28):"
+        valid_cidr "$efs_ip_cidr" || inputerror "Please provide a valid CIDR (/24 - /28):"
     done
 
-    efs_ip_cidr_end=$(echo $efs_ip_cidr | cut -d '.' -f 4)
+    efs_ip_cidr_end=$(echo "$efs_ip_cidr" | cut -d '.' -f 4)
     efs_ip_cidr_q4="${efs_ip_cidr_end%%/*}"
     efs_ip_cidr_pre="${efs_ip_cidr_end##*/}"
     efs_ip_range_start="${efs_ip_cidr%%/*}"
@@ -418,13 +418,13 @@ echo "[Ansible] Installing EPEL release package"
 yum install -q -y epel-release 1>&4
 
 echo "[Ansible] Installing Eucalyptus release package"
-yum install -q -y ${eucalyptus_release} 1>&4
+yum install -q -y "${eucalyptus_release}" 1>&4
 
 echo "[Ansible] Installing Eucalyptus ansible package"
 yum install -q -y "eucalyptus-ansible" 1>&4
 
 # YUM repository is as per the installed eucalyptus release rpm
-efs_yum_base_url=$(cat "/etc/yum.repos.d/eucalyptus.repo" | grep "baseurl" | cut -d = -f 2)
+efs_yum_base_url=$(grep "baseurl" "/etc/yum.repos.d/eucalyptus.repo" | cut -d = -f 2)
 
 echo "[Ansible] Generating ansible inventory"
 cat > "${efs_inventory}" <<TEMPLATE
@@ -517,9 +517,8 @@ echo "[Yum Update] Full update of the OS completed."
 # Run ansible playbook
 # On successful exit, write "success" to faststart-successful*.log.
 
-curdir=`pwd`
-(ansible-playbook --inventory ${efs_inventory} \
-  --skip-tags ${efs_skip_tags} \
+(ansible-playbook --inventory "${efs_inventory}" \
+  --skip-tags "${efs_skip_tags}" \
   /usr/share/eucalyptus-ansible/playbook_vpcmido.yml && \
   echo "Phase 1 success" > faststart-successful-phase1.log) 1>&4 2>&4 &
 
@@ -552,8 +551,8 @@ fi
 
 echo ""
 echo "[SUCCESS] Eucalyptus installation complete!"
-total_time=$(timer $t)
-printf 'Time to install: %s\n' $total_time
+total_time=$(timer "$t")
+printf 'Time to install: %s\n' "$total_time"
 echo ""
 echo "[Config] To enable eucalyptus/admin web console access run:"
 echo ""
