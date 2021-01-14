@@ -8,7 +8,7 @@ m4_define([fullversion], [base_version-git_commit_count-date[git]git_revision])
 
 AC_INIT([eucalyptus-ansible], [fullversion])
 
-PLAYBOOK_COMMIT=dc07c0cc9f8f3c53acfaa99cb9fed267058a15aa
+PLAYBOOK_COMMIT=cae87741efbef8bc9bbf3c8e747c7f455f1e10d0
 PLAYBOOK_ORG=sjones4
 
 AC_ARG_WITH(playbook-commit,
