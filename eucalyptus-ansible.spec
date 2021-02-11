@@ -1,5 +1,5 @@
 Name:           eucalyptus-ansible
-Version:        5.0.100
+Version:        5.0.101
 Release:        0%{?build_id:.%build_id}%{?dist}
 Summary:        Ansible playbooks for Eucalyptus
 
