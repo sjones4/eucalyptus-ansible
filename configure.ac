@@ -1,4 +1,4 @@
-m4_define([base_version], [5.0.101])
+m4_define([base_version], [6.0.100])
 m4_define([git_revision],
           m4_esyscmd([git rev-parse HEAD | cut -c-7 | tr -d '\n']))
 m4_define([git_commit_count],
@@ -8,7 +8,7 @@ m4_define([fullversion], [base_version-git_commit_count-date[git]git_revision])
 
 AC_INIT([eucalyptus-ansible], [fullversion])
 
-PLAYBOOK_COMMIT=99506b823e8c9096de3e628d75d9e585ce7200aa
+PLAYBOOK_COMMIT=9afd3920a43dbb3d46403b7d7770a77c13a67ca6
 PLAYBOOK_ORG=appscale
 
 AC_ARG_WITH(playbook-commit,
